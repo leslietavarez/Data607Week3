@@ -1,0 +1,131 @@
+---
+title: 'Data 607 Week 3 Assignment'
+author: "Leslie Tavarez"
+date: "2024-09-22"
+output: html_document
+---
+#load libraries 
+```{r}
+library(tidyverse)
+```
+#Part 1: Provide an example of at least three dataframes in R that demonstrate normalization. The dataframes can contain any data, either real or synthetic. Although normalization is typically done in SQL and relational databases, you are expected to show this example in R, as it is our main work environment in this course.
+
+```{R}
+grocerylist_denormalized <- data.frame(
+  productID = c(1, 1, 1, 2, 2, 3, 3, 4, 5),
+  productName = c("Lemon", "Lemon", "Lemon", "Sweet Potatoes","Sweet Potatoes", "Lime","Lime", "Steak", "Chicken"),
+  productCost = c(0.10, 0.10, 0.10, 0.50, 0.50, 0.15, 0.15, 8.50, 4.50 ),
+  productSellPrice = c(0.50, 0.50, 0.50, 2.00, 2.00, 0.35, 0.35, 18.20, 9.97),
+  CategoryID = c(1, 1, 1, 2, 2, 1, 1, 4, 3)
+)
+print(grocerylist_denormalized)
+```
+
+```{r}
+groceryCatgories_normalized <- data.frame(
+  CategoryID = c(1, 2, 3, 4),
+  CategoryName = c("Fruit","Vegetable","Poultry", "Red Meat" )
+)
+print(groceryCatgories_normalized)
+```
+
+```{r}
+Product <- data.frame(
+   ProductID= unique(grocerylist_denormalized$productID),
+   ProductName= unique(grocerylist_denormalized$productName)
+)
+print(Product)
+```
+
+```{r}
+ProductInfo <- data.frame(
+   ProductID= unique(grocerylist_denormalized$productID),
+   ProductName= unique(grocerylist_denormalized$productName), 
+   ProductPrice= unique(grocerylist_denormalized$productSellPrice)
+)
+print(ProductInfo)
+```
+
+#Part 2 Character Manipulation: using original data file from github
+
+```{r}
+majors_list <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/refs/heads/master/college-majors/majors-list.csv")
+View(majors_list)
+```
+
+#code that identifies the majors that either contain "DATA" or "STATISTICS"
+
+```{r}
+datastats_majors <- majors_list$Major[str_detect(majors_list$Major, "DATA|STATISTICS")]
+
+datastats_majors <- data.frame(datastats_majors)
+View(datastats_majors)
+```
+
+#Part 3 Describe, in words, what these expressions will match:
+
+(.)\\1\\1 : This expression will match the same character appearing three times in a row. For example: "aaa" or "rrr"
+
+```{r}
+expression <- "(.)\\1\\1"
+str_view(expression)
+str_view(c(words, "aaa","rrr","444"), expression) 
+```
+
+"(.)(.)\\2\\1" : This expression will match a pair of characters followed by the same pair of characters reversed. For example: "bccb" or "effe"
+
+```{r}
+expression <- "(.)(.)\\2\\1"
+str_view(expression)
+str_view(c(words), expression) 
+```
+
+(..)\\1 : This expression will match any two charcters repeated. For example: "b2b2" or "c3c3"
+
+```{r}
+expression <- "(..)\\1"
+str_view(expression)
+str_view(c(words), expression)
+```
+
+"(.).\\1.\\1" : This expression will match a character followed by any character, the origina characterm any other character, the original character again. For example: "abaca" or "b3b.b"
+
+```{r}
+expression <- "(.).\\1.\\1"
+str_view(expression)
+str_view(c(words), expression)
+```
+
+"(.)(.)(.).\*\\3\\2\\1" This expression will match three characters followed by zero or more characters of any kinds followed by the same 3 characters but reverse. For example: "abccba" or "abc1cba"
+
+```{r}
+expression <- "(.)(.)(.).*\\3\\2\\1"
+str_view(expression)
+str_view(c(words), expression)
+```
+
+#Part 4 Construct regular expressions to match words that:
+
+1.  Start and end with the same character.
+
+```{r}
+expression <- "^(.).*\\1$"
+str_view(expression)
+str_view(c(words), expression)
+```
+
+2.  Contain a repeated pair of letters (e.g. church'' containsch’’ repeated twice.)
+
+```{r}
+expression <- "(..).*\\1"
+str_view(expression)
+str_view(c(words), expression)
+```
+
+3.  Contain one letter repeated in at least three places (e.g. eleven'' contains threee’’s.)
+
+```{r}
+expression <- "(.).*\\1.*\\1"
+str_view(expression)
+str_view(c(words), expression)
+```
